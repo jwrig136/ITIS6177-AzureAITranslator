@@ -44,12 +44,12 @@ app.use("/docs", swaggerUI.serve, swaggerUI.setup(specs));
  *       200:
  *         description: Successful
  *       500:
- *         description: Error in listing languages`
+ *         description: Error in listing languages
  */
 
 app.get('/languages', async (req, res) => {
     try {
-        axios({
+        const response = await axios({
             baseURL: endpoint,
             url: '/languages?api-version=3.0',
             method: 'get',
@@ -64,11 +64,15 @@ app.get('/languages', async (req, res) => {
                 'scope': 'translation'
             },
             responseType: 'json'
-        }).then(function (response) {
-            res.status(200).json(response.data, null, 4);
-        })
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+        });
+        return res.status(200).json(response.data, null, 4);
+
+    } catch (error) {
+        if (error.response) {
+            return res.status(error.response.status).json({ message: error.response.data.error.message, });
+        } else {
+            return res.status(500).json({ message: 'An unexpected error occurred.', });
+        }
     }
 });
 
@@ -124,7 +128,7 @@ app.post('/translate', [
     const text = req.body.text;
 
     try {
-        axios({
+        const response = await axios({
             baseURL: endpoint,
             url: '/translate',
             method: 'post',
@@ -144,11 +148,17 @@ app.post('/translate', [
                 'text': text
             }],
             responseType: 'json'
-        }).then(function (response) {
-            res.status(200).json(response.data, null, 4);
-        })
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+        });
+
+        return res.status(200).json(response.data, null, 4);
+
+    } catch (error) {
+        console.log(error.response);
+        if (error.response) {
+            return res.status(error.response.status).json({message: error.response.data.error.message,});
+        } else {
+            return res.status(500).json({message: 'An unexpected error occurred.',});
+        }
     }
 });
 
@@ -187,7 +197,7 @@ app.post('/detect', [
     const text = req.body.text;
 
     try {
-        axios({
+        const response = await axios({
             baseURL: endpoint,
             url: '/detect',
             method: 'post',
@@ -205,13 +215,16 @@ app.post('/detect', [
                 'text': text
             }],
             responseType: 'json'
-        }).then(function (response) {
-            res.status(200).json(response.data, null, 4);
-        })
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+        });
+        return res.status(200).json(response.data, null, 4);
 
+    } catch (error) {
+        if (error.response) {
+            return res.status(error.response.status).json({ message: error.response.data.error.message, });
+        } else {
+            return res.status(500).json({ message: 'An unexpected error occurred.', });
+        }
+    }
 });
 
 /**
@@ -266,7 +279,7 @@ app.post('/dictionary/lookup', [
     const text = req.body.text;
 
     try {
-        axios({
+        const response = await axios({
             baseURL: endpoint,
             url: '/dictionary/lookup',
             method: 'post',
@@ -286,13 +299,17 @@ app.post('/dictionary/lookup', [
                 'text': text
             }],
             responseType: 'json'
-        }).then(function (response) {
-            res.status(200).json(response.data, null, 4);
-        })
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+        });
 
+        return res.status(200).json(response.data, null, 4);
+
+    } catch (error) {
+        if (error.response) {
+            return res.status(error.response.status).json({ message: error.response.data.error.message, });
+        } else {
+            return res.status(500).json({ message: 'An unexpected error occurred.', });
+        }
+    }
 });
 
 app.listen(port, () => {
